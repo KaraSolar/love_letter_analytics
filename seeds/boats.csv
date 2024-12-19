@@ -1,2 +1,2 @@
 boat_id,name,main_community,cerbo_gx_model,gps_model,passenger_capacity,captain,updated_at,is_active,boat_type,battery_capacity
-1,taller,quito,NULL,NULL,40,Billy,2024-12-19,TRUE,PEKE,1200
+1,taller,Quito,NULL,NULL,40,Billy,2024-12-19,TRUE,PEKE,1200
