@@ -1,0 +1,7 @@
+version: 2
+
+sources:
+  - name: loveletter_raw
+    schema: loveletter_raw
+    tables:
+      - name: telemetry
