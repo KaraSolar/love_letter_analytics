@@ -1,5 +1,9 @@
-{{ config(materialized='view',
-            schema='transformation') }}
+{{
+    config(
+        materialized='view',
+        schema='transformation',
+    )
+}}
 
 WITH casted_datatypes AS (
 
