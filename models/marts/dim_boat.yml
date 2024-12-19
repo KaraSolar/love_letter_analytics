@@ -1,9 +1,0 @@
-version: 2
-models:
-  - name: dim_boat
-    description: dimension boat
-    columns:
-      - name: boat_id
-        data_tests:
-          - not_null
-          - unique
