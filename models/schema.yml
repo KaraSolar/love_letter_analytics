@@ -37,3 +37,10 @@ models:
       - name: telemetry_datetime
         data_tests:
           - not_null
+  - name: int_trips
+    description: int from stg_telemetry
+    columns:
+      - name: trip_id
+        data_tests:
+          - not_null
+          - unique
