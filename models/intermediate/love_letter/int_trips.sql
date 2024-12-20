@@ -50,6 +50,7 @@ SELECT
                     MIN(telemetry_datetime), SECOND) AS trip_duration_seconds
     ,SUM(IF(battery_power < 0, battery_power, NULL)) AS power_consumed_battery
     ,SUM(IF(pvdc_coupled_power < 0, pvdc_coupled_power, NULL)) AS power_consumed_solar_panels
+    ,SUM(IF(pvdc_coupled_power > 0, pvdc_coupled_power, NULL)) AS power_generated_solar_panels
     ,AVG(speed) AS avg_speed
     ,MIN(speed) AS min_speed
     ,MAX(speed) AS max_speed
