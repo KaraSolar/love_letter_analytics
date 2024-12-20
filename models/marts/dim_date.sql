@@ -27,5 +27,5 @@ SELECT
     ,EXTRACT(DAYOFWEEK FROM date) IN (1,7) AS is_weekend
 FROM date_series
 {% if is_incremental() %}
-WHERE date >= (SELECT COALESCE(MAX(date),'1900-01-01') FROM {{ this }} )
+WHERE date > (SELECT COALESCE(MAX(date),'1900-01-01') FROM {{ this }} )
 {% endif %}

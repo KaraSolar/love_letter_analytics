@@ -21,5 +21,5 @@ SELECT
     ,battery_capacity
 FROM {{ ref('boats')}}
 {% if is_incremental() %}
-WHERE updated_at >= (SELECT COALESCE(MAX(updated_at),'1900-01-01') FROM {{ this }} )
+WHERE updated_at > (SELECT COALESCE(MAX(updated_at),'1900-01-01') FROM {{ this }} )
 {% endif %}

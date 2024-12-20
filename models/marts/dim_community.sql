@@ -20,7 +20,8 @@ SELECT
     ,healthcare_availability
     ,is_active
     ,updated_at
+    ,ST_GEOGFROMTEXT(community_polygon) as community_polygon
 FROM {{ ref('community')}}
 {% if is_incremental() %}
-WHERE updated_at >= (SELECT COALESCE(MAX(updated_at),'1900-01-01') FROM {{ this }} )
+WHERE updated_at > (SELECT COALESCE(MAX(updated_at),'1900-01-01') FROM {{ this }} )
 {% endif %}
