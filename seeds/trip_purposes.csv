@@ -1,0 +1,4 @@
+trip_purpose_id,purpose,is_critical,description,priority_level,is_emergency_trip,updated_at
+1,Escuela,TRUE,"Viajes para la escuela de los ninos",5,FALSE,2024-12-19
+2,Salud,TRUE,"Viajes realizados por emergencias medicas",5,TRUE,2024-12-19
+3,Minga,FALSE,"Viajes para realizar mingas en otras comunidades",3,FALSE,2024-12-19

@@ -1,21 +1,39 @@
 version: 2
 models:
-  - name: my_first_dbt_model
-    description: A starter dbt model
+  - name: dim_boat
+    description: dimension boat
     columns:
-      - name: id
-        description: The primary key for this table
+      - name: boat_id
         data_tests:
-          - unique
           - not_null
-        meta:
-          dimension:
-            type: number
-  - name: my_second_dbt_model
-    description: A starter dbt model
-    columns:
-      - name: id
-        description: The primary key for this table
-        data_tests:
           - unique
+  - name: dim_community
+    description: dimension community
+    columns:
+      - name: community_id
+        data_tests:
+          - not_null
+          - unique
+  - name: dim_date
+    description: dimension date
+    columns:
+      - name: date_id
+        data_tests:
+          - not_null
+          - unique
+  - name: dim_trip_purpose
+    description: dimension community
+    columns:
+      - name: trip_purpose_id
+        data_tests:
+          - not_null
+          - unique
+  - name: stg_telemetry
+    description: stg from raw telemetry
+    columns:
+      - name: boat
+        data_tests:
+          - not_null
+      - name: telemetry_datetime
+        data_tests:
           - not_null
