@@ -35,7 +35,7 @@ SELECT
 FROM `dbt_transformation.int_trips` t
     INNER JOIN {{ ref('dim_boat')}} b
     ON t.boat = b.name
-    INNER JOIN {{ ref('dim_trip_purpose')}} p
+    LEFT JOIN {{ ref('dim_trip_purpose')}} p
     ON t.trip_purpose = p.purpose
     INNER JOIN {{ ref('dim_date')}} dd1
     ON DATE_TRUNC(trip_start, DAY) = dd1.date
