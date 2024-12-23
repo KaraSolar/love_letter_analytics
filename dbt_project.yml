@@ -32,9 +32,9 @@ clean-targets:         # directories to be removed by `dbt clean`
 models:
   love_letter_analytics:
     # Config indicated by + and applies to all files under models/example/
-    example:
+    looker:
       +materialized: view
-      +schema: marts
+      +schema: looker
 
 seeds:
   love_letter_analytics:
