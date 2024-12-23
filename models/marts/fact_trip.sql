@@ -32,7 +32,7 @@ SELECT
     ,avg_speed
     ,min_speed
     ,max_speed
-FROM `dbt_transformation.int_trips` t
+FROM {{ ref('int_trips')}} t
     INNER JOIN {{ ref('dim_boat')}} b
     ON t.boat = b.name
     LEFT JOIN {{ ref('dim_trip_purpose')}} p
