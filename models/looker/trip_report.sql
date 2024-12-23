@@ -78,4 +78,4 @@ FROM {{ ref('fact_trip')}} t
     LEFT JOIN {{ ref('dim_community')}} dc1
     ON t.community_departure_id = dc1.community_id
     LEFT JOIN {{ ref('dim_community')}} dc2
-    ON t.community_departure_id = dc1.community_id
+    ON t.community_arrival_id = dc2.community_id
