@@ -18,16 +18,16 @@ WITH casted_datatypes AS (
         ,SAFE_CAST(telemetryBatteryStateOfChargeSystem AS NUMERIC) AS battery_state_of_charge
         ,SAFE_CAST(telemetryPVDCCoupledPower AS NUMERIC) AS pvdc_coupled_power
         ,SAFE_CAST(telemetryPVDCCoupledCurrent AS NUMERIC) AS pdvc_coupled_current
-        ,SAFE_CAST(telemetryLatitude1 AS INT64) AS latitude_1
-        ,SAFE_CAST(telemetryLatitude2 AS INT64) AS latitude_2
-        ,SAFE_CAST(telemetryLongitude1 AS INT64) AS longitude_1
-        ,SAFE_CAST(telemetryLongitude2 AS INT64) AS longitude_2
+        ,SAFE_CAST(telemetryLatitude1 AS NUMERIC) AS latitude_1
+        ,SAFE_CAST(telemetryLatitude2 AS NUMERIC) AS latitude_2
+        ,SAFE_CAST(telemetryLongitude1 AS NUMERIC) AS longitude_1
+        ,SAFE_CAST(telemetryLongitude2 AS NUMERIC) AS longitude_2
         ,SAFE_CAST(telemetryCourse AS NUMERIC) AS course
         ,SAFE_CAST(telemetrySpeed AS NUMERIC) AS speed
         ,SAFE_CAST(telemetryGPSFix AS NUMERIC) AS gps_fix
         ,SAFE_CAST(telemetryGPSNumberOfSatellites AS NUMERIC) AS number_of_satellites
-        ,SAFE_CAST(telemetryAltitude1 AS INT64) AS altitude_1
-        ,SAFE_CAST(telemetryAltitude2 AS INT64) AS altitude_2
+        ,SAFE_CAST(telemetryAltitude1 AS NUMERIC) AS altitude_1
+        ,SAFE_CAST(telemetryAltitude2 AS NUMERIC) AS altitude_2
         ,SAFE_CAST(tripPassengerQty AS NUMERIC) AS passenger_quantity
         ,tripPurpose AS trip_purpose
     FROM {{source('loveletter_raw','telemetry')}}
