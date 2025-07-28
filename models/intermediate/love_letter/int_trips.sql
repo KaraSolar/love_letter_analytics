@@ -36,7 +36,7 @@ WITH trip_order AS (
 
 SELECT
     t_distance.trip_number
-    ,{{ dbt_utils.generate_surrogate_key(['boat', 'MIN(telemetry_datetime)', 'MAX(telemetry_datetime)']) }} AS trip_id
+    ,{{ dbt_utils.generate_surrogate_key(['boat', 'trip_number']) }} AS trip_id
     ,boat
     ,MIN(telemetry_datetime) AS trip_start
     ,ANY_VALUE(trip_purpose) AS trip_purpose
@@ -57,5 +57,5 @@ SELECT
     ,MAX(speed) AS max_speed
     ,ANY_VALUE(upload_date) AS upload_date
 FROM t_distance
-GROUP BY date_trunc(telemetry_datetime, DAY), trip_number, boat
+GROUP BY boat, trip_number
 
