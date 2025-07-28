@@ -10,7 +10,7 @@ WITH casted_datatypes AS (
     SELECT
         Boat AS boat
         ,SAFE_CAST(telemetryId AS NUMERIC) AS telemetry_id
-        ,parse_datetime('%F %T',telemetryTimeStamp) AS telemetry_datetime
+        ,PARSE_DATETIME('%F %T',telemetryTimeStamp) AS telemetry_datetime
         ,SAFE_CAST(tripId AS NUMERIC) AS trip_id
         ,SAFE_CAST(telemetryBatteryVoltageSystem AS NUMERIC) AS battery_voltage
         ,SAFE_CAST(telemetryBatteryCurrentSystem AS NUMERIC) AS battery_current
@@ -29,7 +29,9 @@ WITH casted_datatypes AS (
         ,CAST(SAFE_CAST(telemetryAltitude1 AS NUMERIC) AS INT64) AS altitude_1
         ,CAST(SAFE_CAST(telemetryAltitude2 AS NUMERIC) AS INT64) AS altitude_2
         ,SAFE_CAST(tripPassengerQty AS NUMERIC) AS passenger_quantity
-        ,tripPurpose AS trip_purpose
+        ,IF(tripPurpose = 'None', NULL, tripPurpose) AS trip_purpose
+        ,SAFE_CAST(file_date AS DATE) AS file_date
+        ,SAFE_CAST(upload_date AS DATETIME) AS upload_date
     FROM {{source('loveletter_raw','telemetry')}}
 
 )
@@ -54,4 +56,6 @@ SELECT
     ,{{ registers_decoder('altitude_1', 'altitude_2', 10) }} AS altitude
     ,passenger_quantity
     ,trip_purpose
+    ,file_date
+    ,upload_date
 FROM casted_datatypes
