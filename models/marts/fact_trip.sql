@@ -32,6 +32,7 @@ SELECT
     ,avg_speed
     ,min_speed
     ,max_speed
+    ,CURRENT_TIMESTAMP() AS last_updaded_at
 FROM {{ ref('int_trips')}} t
     INNER JOIN {{ ref('dim_boat')}} b
     ON t.boat = b.name

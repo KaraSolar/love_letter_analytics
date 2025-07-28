@@ -9,7 +9,7 @@ WITH trip_order AS (
     SELECT
         boat
         ,telemetry_datetime
-        ,DENSE_RANK() OVER(PARTITION BY boat, date_trunc(telemetry_datetime, DAY)
+        ,ROW_NUMBER() OVER(PARTITION BY boat, file_date
                             ORDER BY trip_id) AS trip_number
         ,ST_GEOGPOINT(longitude, latitude) AS coordinates
         ,battery_power
@@ -17,6 +17,7 @@ WITH trip_order AS (
         ,speed
         ,passenger_quantity
         ,trip_purpose
+        ,upload_date
     FROM {{ ref('stg_telemetry')}}
     WHERE trip_id IS NOT NULL
 )
@@ -24,11 +25,11 @@ WITH trip_order AS (
   SELECT
     *
     ,ST_DISTANCE(coordinates,
-                LAG(coordinates) OVER(PARTITION BY trip_number
+                LAG(coordinates) OVER(PARTITION BY boat, trip_number
                                     ORDER BY telemetry_datetime)) AS distance
-    ,ROW_NUMBER() OVER(PARTITION BY trip_number
+    ,ROW_NUMBER() OVER(PARTITION BY boat, trip_number
                         ORDER BY telemetry_datetime) AS points_order_asc
-    ,ROW_NUMBER() OVER(PARTITION BY trip_number
+    ,ROW_NUMBER() OVER(PARTITION BY boat, trip_number
                         ORDER BY telemetry_datetime DESC) AS points_order_desc
   from trip_order
 )
@@ -54,6 +55,7 @@ SELECT
     ,AVG(speed) AS avg_speed
     ,MIN(speed) AS min_speed
     ,MAX(speed) AS max_speed
+    ,ANY_VALUE(upload_date) AS upload_date
 FROM t_distance
 GROUP BY date_trunc(telemetry_datetime, DAY), trip_number, boat
 
