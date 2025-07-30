@@ -9,7 +9,7 @@ WITH trip_order AS (
     SELECT
         boat
         ,telemetry_datetime
-        ,ROW_NUMBER() OVER(PARTITION BY boat
+        ,DENSE_RANK() OVER(PARTITION BY boat -- associate each trip & to a unique number
                             ORDER BY file_date, trip_id) AS trip_number
         ,ST_GEOGPOINT(longitude, latitude) AS coordinates
         ,battery_power
@@ -17,6 +17,7 @@ WITH trip_order AS (
         ,speed
         ,passenger_quantity
         ,trip_purpose
+        ,file_date
         ,upload_date
     FROM {{ ref('stg_telemetry')}}
     WHERE trip_id IS NOT NULL
@@ -35,9 +36,10 @@ WITH trip_order AS (
 )
 
 SELECT
-    t_distance.trip_number
-    ,upload_date
-    ,{{ dbt_utils.generate_surrogate_key(['boat', 'trip_number']) }} AS trip_id
+    {{ dbt_utils.generate_surrogate_key(['boat', 'trip_number']) }} AS trip_id
+    ,t_distance.trip_number
+    ,ANY_VALUE(upload_date) AS upload_date
+    ,ANY_VALUE(file_date) AS file_date
     ,boat
     ,MIN(telemetry_datetime) AS trip_start
     ,ANY_VALUE(trip_purpose) AS trip_purpose
@@ -57,5 +59,5 @@ SELECT
     ,MIN(speed) AS min_speed
     ,MAX(speed) AS max_speed
 FROM t_distance
-GROUP BY boat, upload_date, trip_number
+GROUP BY boat, trip_number
 

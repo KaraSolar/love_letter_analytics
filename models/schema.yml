@@ -38,9 +38,54 @@ models:
         data_tests:
           - not_null
   - name: int_trips
-    description: int from stg_telemetry
+    description: >
+      This models granularity is (boat, trip) which is also the surrogate key.
+      Every day the rpi is rebooted, so we dont have a overall identifier of a trip by boat
+      and since pollen is on-premise each boat has their own trip_id so the trip_id 1 can be
+      repeated multiple days among every boat. Therefore is imperative to create a unique identifier
+      per boat. That's the reason of the usage of dense_rank. This model will compute most of the metrics of a boat
+      including the distance, avg_speed, etc. It will also aggregate the points of a trip into a linestring/multilinestring.
     columns:
       - name: trip_id
+        description: surrogate key, composed of boat and trip number.
         data_tests:
           - not_null
           - unique
+      - name: trip_number
+        description: the number of the trip (can be repeated among all boats but won't be repeated for a single boat).
+      - name: upload_date
+        description: the date where parquet file was uploaded.
+      - name: file_date
+        description: the .db files date.
+      - name: boat
+        description: boat name.
+      - name: trip_start
+        description: the start datetime of the trip.
+      - name: trip_purpose
+        description: the purpose of a trip.
+      - name: trip_end
+        description: the end datetime of the trip.
+      - name: trip_linestring
+        description: the route taken by the boat during the trip.
+      - name: first_hundred_points
+        description: the first hundred coordinates of the trip.
+      - name: last_hundred_points
+        description: the last hundred coordinates of the trip.
+      - name: number_of_passengers
+        description: the number of passengers.
+      - name: distance_meters
+        description: distance of the trip in meters.
+      - name: trip_duration_seconds
+        description: the trip duration in seconds.
+      - name: power_consumed_battery
+        description: the total power consumed by the battery in the trip.
+      - name: power_consumed_solar_panels
+        description: energy that the solar panels consumed.
+      - name: power_generated_solar_panels
+        description: energy that the solar panels generated.
+      - name: avg_speed
+        description: average speed during the trip in m/s.
+      - name: min_speed
+        description: minimum speed during the trip in m/s.
+      - name: max_speed
+        description: maximum speed during the trip in m/s.
