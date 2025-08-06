@@ -66,6 +66,12 @@ SELECT
     -- #####    DATE END
     ,dd2.date AS trip_end_date
 
+    -- #####    TRIP DISCRIMINATION
+    ,CASE
+        WHEN b.name = 'taller' THEN True
+        WHEN t.file_date < '2025-06-28' THEN True
+        ELSE False
+    END AS is_test_trip
 FROM {{ ref('fact_trip')}} t
     INNER JOIN {{ ref('dim_boat')}} b
     ON t.boat_id = b.boat_id
