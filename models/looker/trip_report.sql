@@ -19,7 +19,7 @@ SELECT
     ,t.avg_speed
     ,t.min_speed
     ,t.max_speed
-
+    ,t.file_date
 
 
     -- #####    BOAT
