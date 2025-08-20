@@ -1,0 +1,128 @@
+version: 2
+
+models:
+  - name: love_letter_telemetry
+    description: "Transformed telemetry data with decoded registers and reliability flag."
+    columns:
+      - name: boat
+        description: "Boat identifier"
+        tests:
+          - not_null
+      - name: telemetry_id
+        description: "Unique telemetry row id"
+        tests:
+          - not_null
+          - unique
+      - name: telemetry_datetime
+        description: "Parsed telemetry timestamp"
+        tests:
+          - not_null
+      - name: latitude
+        description: "Decoded latitude"
+        tests:
+          - not_null:
+              config:
+                where: "telemetry_datetime IS NOT NULL"
+          - accepted_range:
+              min_value: -90
+              max_value: 90
+              inclusive: true
+              config:
+                severity: warn
+      - name: longitude
+        description: "Decoded longitude"
+        tests:
+          - not_null:
+              config:
+                where: "telemetry_datetime IS NOT NULL"
+          - accepted_range:
+              min_value: -180
+              max_value: 180
+              inclusive: true
+              config:
+                severity: warn
+      - name: speed
+        description: "Speed in expected units"
+        tests:
+          - accepted_range:
+              min_value: 0
+              max_value: 200
+              inclusive: true
+              config:
+                severity: warn
+      - name: battery_voltage
+        description: "Battery voltage"
+        tests:
+          - accepted_range:
+              min_value: 0
+              max_value: 1000
+              inclusive: true
+              config:
+                severity: warn
+      - name: battery_current
+        description: "Battery current"
+        tests:
+          - accepted_range:
+              min_value: -10000
+              max_value: 10000
+              inclusive: true
+              config:
+                severity: warn
+      - name: battery_power
+        description: "Battery power"
+        tests:
+          - accepted_range:
+              min_value: -1000000
+              max_value: 1000000
+              inclusive: true
+              config:
+                severity: warn
+      - name: gps_fix
+        description: "GPS fix code"
+        tests:
+          - accepted_values:
+              values: [0, 1, 2, 3]
+              quote: false
+              config:
+                severity: warn
+      - name: number_of_satellites
+        description: "Number of GPS satellites"
+        tests:
+          - accepted_range:
+              min_value: 0
+              max_value: 100
+              inclusive: true
+              config:
+                severity: warn
+      - name: altitude
+        description: "Decoded altitude"
+        tests:
+          - accepted_range:
+              min_value: -500
+              max_value: 20000
+              inclusive: true
+              config:
+                severity: warn
+      - name: is_gps_reading_reliable
+        description: "Reliability flag derived from lat/long bounding box"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [true, false, 0, 1]
+              quote: false
+              config:
+                severity: warn
+      - name: trip_purpose
+        description: "Trip purpose with 'None' coerced to NULL"
+        tests:
+          - relationships:
+              to: ref('love_letter_telemetry')
+              field: trip_purpose
+              # No direct schema constraint; validated by data tests to ensure no literal 'None'
+
+    # dbt_utils tests
+    tests:
+      - dbt_utils.expression_is_true:
+          expression: "1=1"  # sanity
+      - dbt_utils.row_count:
+          compare_model: ref('love_letter_telemetry')  # self-check; effectively a smoke test

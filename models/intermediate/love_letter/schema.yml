@@ -1,0 +1,120 @@
+version: 2
+
+models:
+  - name: love_letter
+    description: "Trip-level aggregation with geometry and metrics derived from telemetry."
+    columns:
+      - name: trip_id
+        description: "Surrogate key per boat + trip_number."
+        tests:
+          - not_null
+          - unique
+
+      - name: boat
+        description: "Boat identifier."
+        tests:
+          - not_null
+
+      - name: trip_number
+        description: "Sequential trip number per boat."
+        tests:
+          - not_null
+
+      - name: trip_start
+        description: "Earliest telemetry_datetime in the trip."
+        tests:
+          - not_null
+
+      - name: trip_end
+        description: "Latest telemetry_datetime in the trip."
+        tests:
+          - not_null
+
+      - name: trip_duration_seconds
+        description: "Duration between trip_end and trip_start in seconds."
+        tests:
+          - not_null
+          # dbt-utils expression_is_true to ensure non-negative duration if available
+          - dbt_utils.expression_is_true:
+              expression: "trip_duration_seconds >= 0"
+
+      - name: distance_meters
+        description: "Total distance traversed in meters."
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "distance_meters >= 0"
+
+      - name: avg_speed
+        description: "Average speed across the trip."
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: "avg_speed >= 0"
+
+      - name: min_speed
+        description: "Minimum speed across the trip."
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: "min_speed >= 0"
+
+      - name: max_speed
+        description: "Maximum speed across the trip."
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: "max_speed >= 0"
+
+      - name: number_of_passengers
+        description: "Passenger count for the trip (any_value from telemetry)."
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: "number_of_passengers IS NULL OR number_of_passengers >= 0"
+
+      - name: power_generated_solar_panels
+        description: "Sum of positive pvdc_coupled_power values."
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: "power_generated_solar_panels IS NULL OR power_generated_solar_panels >= 0"
+
+      - name: power_consumed_solar_panels
+        description: "Sum of negative pvdc_coupled_power values."
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: "power_consumed_solar_panels IS NULL OR power_consumed_solar_panels <= 0"
+
+      - name: power_consumed_battery
+        description: "Sum of negative battery_power values."
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: "power_consumed_battery IS NULL OR power_consumed_battery <= 0"
+
+      - name: trip_linestring
+        description: "Linestring geometry built from trip coordinates."
+        tests: []
+
+      - name: first_hundred_points
+        description: "Array of up to the first 100 coordinate points for the trip."
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: "first_hundred_points IS NULL OR ARRAY_LENGTH(first_hundred_points) <= 100"
+
+      - name: last_hundred_points
+        description: "Array of up to the last 100 coordinate points for the trip."
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: "last_hundred_points IS NULL OR ARRAY_LENGTH(last_hundred_points) <= 100"
+
+    tests:
+      # Cross-column integrity checks:
+      - dbt_utils.expression_is_true:
+          name: "avg_between_min_max_speed"
+          # Ensure avg_speed lies between min and max when all are non-null
+          expression: "(avg_speed IS NULL OR min_speed IS NULL OR max_speed IS NULL) OR (avg_speed >= min_speed AND avg_speed <= max_speed)"
+
+      - dbt_utils.expression_is_true:
+          name: "trip_end_after_start"
+          # Ensure trip_end is at or after trip_start
+          expression: "trip_end IS NULL OR trip_start IS NULL OR trip_end >= trip_start"
+
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: ["boat", "trip_number"]
+          # Each (boat, trip_number) should be unique at the trip grain.
