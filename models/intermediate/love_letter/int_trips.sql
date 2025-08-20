@@ -11,7 +11,10 @@ WITH trip_order AS (
         ,telemetry_datetime
         ,DENSE_RANK() OVER(PARTITION BY boat -- associate each trip & to a unique number
                             ORDER BY file_date, trip_id) AS trip_number
-        ,ST_GEOGPOINT(longitude, latitude) AS coordinates
+        ,CASE
+            WHEN is_gps_reading_reliable = True -- only consider those points that are an actual reading
+                THEN ST_GEOGPOINT(longitude, latitude)
+        END AS coordinates
         ,battery_power
         ,pvdc_coupled_power
         ,speed
@@ -26,8 +29,9 @@ WITH trip_order AS (
   SELECT
     *
     ,ST_DISTANCE(coordinates,
-                LAG(coordinates) OVER(PARTITION BY boat, trip_number
-                                    ORDER BY telemetry_datetime)) AS distance
+                LAST_VALUE(coordinates IGNORE NULLS) OVER(PARTITION BY boat, trip_number
+                                    ORDER BY telemetry_datetime -- replaces a lag but with ignore nulls option
+                                    ROWS BETWEEN UNBOUNDED PRECEDING AND 1 PRECEDING)) AS distance
     ,ROW_NUMBER() OVER(PARTITION BY boat, trip_number
                         ORDER BY telemetry_datetime) AS points_order_asc
     ,ROW_NUMBER() OVER(PARTITION BY boat, trip_number
