@@ -35,6 +35,31 @@ WITH casted_datatypes AS (
     FROM {{source('loveletter_raw','telemetry')}}
 
 )
+, registers_decoding AS (
+    SELECT
+        boat
+        ,telemetry_id
+        ,telemetry_datetime
+        ,trip_id
+        ,battery_voltage
+        ,battery_current
+        ,battery_power
+        ,battery_state_of_charge
+        ,pvdc_coupled_power
+        ,pdvc_coupled_current
+        ,{{ registers_decoder('latitude_1', 'latitude_2', 10000000)}} AS latitude
+        ,{{ registers_decoder('longitude_1', 'longitude_2', 10000000) }} AS longitude
+        ,course
+        ,speed
+        ,gps_fix
+        ,number_of_satellites
+        ,{{ registers_decoder('altitude_1', 'altitude_2', 10) }} AS altitude
+        ,passenger_quantity
+        ,trip_purpose
+        ,file_date
+        ,upload_date
+    FROM casted_datatypes
+)
 
 SELECT
     boat
@@ -47,15 +72,22 @@ SELECT
     ,battery_state_of_charge
     ,pvdc_coupled_power
     ,pdvc_coupled_current
-    ,{{ registers_decoder('latitude_1', 'latitude_2', 10000000)}} AS latitude
-    ,{{ registers_decoder('longitude_1', 'longitude_2', 10000000) }} AS longitude
+    ,latitude
+    ,longitude
     ,course
     ,speed
     ,gps_fix
     ,number_of_satellites
-    ,{{ registers_decoder('altitude_1', 'altitude_2', 10) }} AS altitude
+    ,altitude
     ,passenger_quantity
     ,trip_purpose
     ,file_date
     ,upload_date
-FROM casted_datatypes
+    ,CASE
+        WHEN 1=1
+            AND longitude BETWEEN -0.2 AND 0.8
+            AND latitude BETWEEN -0.2 AND 0.8
+            THEN False
+        ELSE True
+    END AS is_gps_reading_reliable
+FROM registers_decoding
